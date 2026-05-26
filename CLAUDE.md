@@ -55,7 +55,7 @@ type Expense = {
   id: string;
   tripId: string;
   person: string;
-  category: 'food' | 'transport' | 'entertainment' | 'other';
+  category: 'food' | 'transport' | 'shopping' | 'other';
   amount: number;             // tatil para biriminde
   note: string;
   createdAt: string;          // ISO
@@ -110,7 +110,7 @@ Tab bar: `[+ Ekle] [≡ Özet]`. Header: tatil adı + ⋯ menüsü (tatil deği�
 |---|---|
 | food | `ti-tools-kitchen-2` |
 | transport | `ti-car` |
-| entertainment | `ti-glass` |
+| shopping | `ti-shopping-bag` |
 | other | `ti-dots` |
 
 | Para Birimi | Sembol |
