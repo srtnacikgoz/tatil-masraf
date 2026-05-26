@@ -341,17 +341,17 @@
       background: var(--surface);
       border: 1.5px solid var(--border);
       border-radius: var(--radius);
-      min-height: 64px;
+      min-height: 38px;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 8px;
-      font-size: 15px;
+      gap: 5px;
+      font-size: 9px;
       font-weight: 500;
       color: var(--text);
       transition: all 0.15s;
     }
-    .category-btn .icon { font-size: 22px; }
+    .category-btn .icon { font-size: 13px; }
     .category-btn:active { transform: scale(0.97); }
     .category-btn.selected {
       background: var(--primary-soft);
@@ -1318,7 +1318,7 @@
 
           <div class="fab-row">
             <button class="btn-primary" id="new-trip-btn">
-              <i class="ti ti-plus" style="vertical-align:-3px;margin-right:6px;"></i>
+              <svg class="icon" style="margin-right:6px;"><use href="#i-plus"/></svg>
               Yeni tatil
             </button>
           </div>
@@ -1377,7 +1377,7 @@
             <div class="category-grid">
               ${CATEGORIES.map(c => `
                 <button class="category-btn ${draft.category === c.key ? 'selected' : ''}" data-category="${c.key}">
-                  <i class="ti ${c.icon}"></i>
+                  <svg class="icon"><use href="#i-${c.icon}"/></svg>
                   <span>${c.label}</span>
                 </button>
               `).join('')}
@@ -2052,10 +2052,10 @@
             <svg class="icon"><use href="#i-settings"/></svg> Tatil ayarları
           </button>
           <button class="menu-item" data-act="csv">
-            <i class="ti ti-download"></i> CSV olarak indir
+            <svg class="icon"><use href="#i-download"/></svg> CSV olarak indir
           </button>
           <button class="menu-item danger" data-act="delete">
-            <i class="ti ti-trash"></i> Tatili sil
+            <svg class="icon"><use href="#i-trash"/></svg> Tatili sil
           </button>
         </div>
       `, modal => {
@@ -2259,7 +2259,7 @@
                   <span class="rate-prefix">1 ${code} =</span>
                   <input type="text" inputmode="decimal" id="rate-input" placeholder="0,00" value="${rate > 0 ? fmt(rate) : ''}" autocomplete="off">
                   <span class="rate-prefix">₺</span>
-                  <button id="rate-save-btn" aria-label="Kaydet"><i class="ti ti-check"></i></button>
+                  <button id="rate-save-btn" aria-label="Kaydet"><svg class="icon"><use href="#i-check"/></svg></button>
                 </div>
               </div>
             `;
