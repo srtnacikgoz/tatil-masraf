@@ -1,0 +1,2399 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <meta name="theme-color" content="#1a1a1a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Masraf">
+  <title>Tatil Masraf</title>
+
+  <link rel="icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23f59e0b'/><text x='50' y='66' font-size='56' text-anchor='middle' font-family='system-ui' fill='white' font-weight='700'>₿</text></svg>">
+  <link rel="apple-touch-icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23f59e0b'/><text x='50' y='66' font-size='56' text-anchor='middle' font-family='system-ui' fill='white' font-weight='700'>₿</text></svg>">
+
+  <style>
+    :root {
+      --bg: #f5f5f7;
+      --surface: #ffffff;
+      --surface-alt: #fafafa;
+      --text: #1a1a1a;
+      --text-muted: #6b7280;
+      --text-faint: #9ca3af;
+      --primary: #f59e0b;
+      --primary-soft: #fef3c7;
+      --primary-fg: #ffffff;
+      --danger: #ef4444;
+      --danger-soft: #fee2e2;
+      --success: #10b981;
+      --border: #e5e7eb;
+      --border-strong: #d1d5db;
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+      --shadow: 0 2px 12px rgba(0,0,0,0.06);
+      --radius-sm: 8px;
+      --radius: 14px;
+      --radius-lg: 22px;
+      --safe-bottom: env(safe-area-inset-bottom);
+      --safe-top: env(safe-area-inset-top);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    *:focus { outline: none; }
+    html, body {
+      height: 100%;
+      overflow: hidden;
+      overscroll-behavior: none;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+      -webkit-tap-highlight-color: transparent;
+      -webkit-user-select: none;
+      user-select: none;
+      font-size: 16px;
+      line-height: 1.4;
+    }
+    button {
+      font: inherit;
+      color: inherit;
+      background: none;
+      border: none;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .icon {
+      width: 1em;
+      height: 1em;
+      vertical-align: -0.125em;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      flex-shrink: 0;
+    }
+    input {
+      font: inherit;
+      color: inherit;
+    }
+
+    #app {
+      display: flex;
+      flex-direction: column;
+      height: 100dvh;
+      max-width: 480px;
+      margin: 0 auto;
+      background: var(--bg);
+    }
+
+    /* ---------- Header ---------- */
+    .header {
+      padding: calc(var(--safe-top) + 12px) 16px 12px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+    .header-title {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      min-width: 0;
+    }
+    .header-title h1 {
+      font-size: 17px;
+      font-weight: 600;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .header-title .currency {
+      font-size: 14px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+    .header-actions {
+      display: flex;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+    .icon-btn {
+      width: 44px;
+      height: 44px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: var(--radius-sm);
+      font-size: 22px;
+      color: var(--text);
+      transition: background 0.15s;
+    }
+    .icon-btn:active { background: var(--bg); }
+
+    /* ---------- Main ---------- */
+    .main {
+      flex: 1;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      position: relative;
+    }
+    .screen { display: none; height: 100%; }
+    .screen.active { display: block; }
+
+    /* ---------- Tab Bar ---------- */
+    .tab-bar {
+      display: flex;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      padding-bottom: var(--safe-bottom);
+      flex-shrink: 0;
+    }
+    .tab-btn {
+      flex: 1;
+      padding: 12px 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      color: var(--text-faint);
+      font-size: 11px;
+      font-weight: 500;
+      transition: color 0.15s;
+    }
+    .tab-btn .icon { font-size: 24px; }
+    .tab-btn.active { color: var(--primary); }
+    .tab-btn:active { background: var(--bg); }
+
+    /* ---------- TripList ---------- */
+    .trip-list-screen {
+      padding: 24px 20px;
+    }
+    .trip-list-screen h2 {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .trip-list-screen .subtitle {
+      color: var(--text-muted);
+      font-size: 15px;
+      margin-bottom: 24px;
+    }
+    .trip-card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 18px;
+      margin-bottom: 12px;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      transition: transform 0.1s;
+    }
+    .trip-card:active { transform: scale(0.98); }
+    .trip-card-info { min-width: 0; flex: 1; }
+    .trip-card-name {
+      font-size: 17px;
+      font-weight: 600;
+      margin-bottom: 2px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .trip-card-meta {
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+    .trip-card-arrow {
+      color: var(--text-faint);
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+    .trip-card.active-trip {
+      border: 2px solid var(--primary);
+      box-shadow: 0 0 0 4px var(--primary-soft);
+    }
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--text-muted);
+    }
+    .empty-state .icon {
+      font-size: 56px;
+      color: var(--text-faint);
+      margin-bottom: 12px;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .empty-state .empty-title {
+      font-size: 17px;
+      color: var(--text);
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+    .empty-state .empty-msg {
+      font-size: 14px;
+      margin-bottom: 20px;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: var(--primary-fg);
+      padding: 14px 22px;
+      border-radius: var(--radius);
+      font-size: 16px;
+      font-weight: 600;
+      width: 100%;
+      min-height: 50px;
+      transition: transform 0.1s, background 0.15s;
+    }
+    .btn-primary:active { transform: scale(0.97); background: #d97706; }
+    .btn-primary:disabled { opacity: 0.4; transform: none; }
+    .btn-secondary {
+      background: var(--surface);
+      color: var(--text);
+      padding: 12px 18px;
+      border-radius: var(--radius);
+      font-size: 15px;
+      font-weight: 500;
+      border: 1px solid var(--border);
+      width: 100%;
+      min-height: 44px;
+    }
+    .btn-secondary:active { background: var(--bg); }
+    .btn-danger {
+      color: var(--danger);
+    }
+
+    .fab-row {
+      position: sticky;
+      bottom: 16px;
+      padding: 16px 0 0;
+    }
+
+    /* ---------- ExpenseEntry ---------- */
+    .entry-screen {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+    .entry-top {
+      padding: 16px 16px 0;
+      flex-shrink: 0;
+    }
+    .section-label {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--text-muted);
+      margin: 0 4px 8px;
+    }
+
+    .people-row {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 0 4px 12px;
+      margin: 0 -4px;
+      scrollbar-width: none;
+    }
+    .people-row::-webkit-scrollbar { display: none; }
+    .person-chip {
+      flex-shrink: 0;
+      min-height: 44px;
+      padding: 10px 18px;
+      border-radius: 100px;
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--text);
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+    .person-chip:active { transform: scale(0.96); }
+    .person-chip.selected {
+      background: var(--text);
+      color: white;
+      border-color: var(--text);
+    }
+    .person-chip.add-chip {
+      color: var(--text-muted);
+      border-style: dashed;
+      min-width: 44px;
+      padding: 10px 14px;
+    }
+
+    .category-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .category-btn {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      min-height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--text);
+      transition: all 0.15s;
+    }
+    .category-btn .icon { font-size: 22px; }
+    .category-btn:active { transform: scale(0.97); }
+    .category-btn.selected {
+      background: var(--primary-soft);
+      border-color: var(--primary);
+      color: #92400e;
+    }
+
+    .amount-display {
+      text-align: center;
+      padding: 8px 16px 12px;
+      flex-shrink: 0;
+    }
+    .amount-value {
+      font-size: 56px;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: -0.02em;
+      font-variant-numeric: tabular-nums;
+      color: var(--text);
+    }
+    .amount-value.empty { color: var(--text-faint); }
+    .amount-currency {
+      display: inline-block;
+      font-size: 28px;
+      color: var(--text-muted);
+      font-weight: 500;
+      margin-left: 6px;
+      vertical-align: top;
+      margin-top: 14px;
+    }
+    .amount-equiv {
+      margin-top: 6px;
+      font-size: 15px;
+      color: var(--text-muted);
+      font-variant-numeric: tabular-nums;
+      min-height: 18px;
+    }
+    .amount-equiv.muted { color: var(--text-faint); font-style: italic; font-size: 13px; }
+
+    /* ---------- Converter ---------- */
+    .converter-field {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--surface-alt);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      transition: border-color 0.15s;
+    }
+    .converter-field:focus-within { border-color: var(--primary); }
+    .converter-field .conv-label {
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--text-muted);
+      min-width: 60px;
+    }
+    .converter-field input {
+      flex: 1;
+      background: none;
+      border: none;
+      font-size: 26px;
+      font-weight: 600;
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+      min-width: 0;
+      -webkit-user-select: text;
+      user-select: text;
+      padding: 4px 0;
+      min-height: 36px;
+    }
+    .converter-arrow {
+      display: flex;
+      justify-content: center;
+      color: var(--text-faint);
+      font-size: 22px;
+      margin: 6px 0;
+    }
+    .converter-rate {
+      width: 100%;
+      margin-top: 14px;
+      padding: 12px 14px;
+      background: var(--bg);
+      border-radius: var(--radius);
+      font-size: 14px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      min-height: 44px;
+    }
+    .converter-rate .rate-text { font-variant-numeric: tabular-nums; }
+    .converter-rate .rate-edit {
+      color: var(--primary);
+      font-weight: 600;
+      font-size: 14px;
+    }
+    .rate-edit-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      width: 100%;
+    }
+    .rate-edit-row .rate-prefix {
+      font-size: 14px;
+      color: var(--text-muted);
+      flex-shrink: 0;
+    }
+    .rate-edit-row input {
+      flex: 1;
+      min-width: 0;
+      background: var(--surface);
+      border: 1.5px solid var(--primary);
+      border-radius: var(--radius-sm);
+      padding: 8px 10px;
+      font-size: 16px;
+      font-weight: 600;
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+      -webkit-user-select: text;
+      user-select: text;
+      min-height: 36px;
+    }
+    .rate-edit-row button {
+      min-width: 40px;
+      min-height: 40px;
+      border-radius: var(--radius-sm);
+      background: var(--primary);
+      color: white;
+      font-size: 18px;
+    }
+
+    .numpad {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 6px;
+      padding: 12px 8px 12px;
+      background: var(--bg);
+      flex-shrink: 0;
+    }
+    .numpad-key {
+      background: var(--surface);
+      border-radius: var(--radius);
+      min-height: 56px;
+      font-size: 26px;
+      font-weight: 500;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--shadow-sm);
+      transition: background 0.1s, transform 0.1s;
+    }
+    .numpad-key:active {
+      background: var(--border);
+      transform: scale(0.97);
+    }
+    .numpad-key .icon { font-size: 22px; }
+
+    .save-row {
+      padding: 8px 16px 16px;
+      flex-shrink: 0;
+    }
+    .save-btn {
+      width: 100%;
+      min-height: 54px;
+      background: var(--primary);
+      color: white;
+      border-radius: var(--radius);
+      font-size: 17px;
+      font-weight: 600;
+      transition: background 0.3s, transform 0.1s;
+    }
+    .save-btn:active { transform: scale(0.98); }
+    .save-btn.flash { background: var(--success); }
+    .save-btn:disabled { opacity: 0.4; }
+
+    /* ---------- Summary ---------- */
+    .summary-screen {
+      padding: 16px;
+    }
+    .stat-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .stat-card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 16px;
+      box-shadow: var(--shadow-sm);
+    }
+    .stat-card-label {
+      font-size: 12px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+    .stat-card-value {
+      font-size: 22px;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      line-height: 1.2;
+    }
+    .stat-card-currency {
+      font-size: 14px;
+      color: var(--text-muted);
+      font-weight: 500;
+      margin-left: 4px;
+    }
+
+    .summary-section {
+      margin-bottom: 20px;
+    }
+    .summary-section-title {
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--text-muted);
+      margin: 0 4px 8px;
+    }
+    .person-row {
+      background: var(--surface);
+      padding: 14px 16px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+    .person-row-name {
+      font-weight: 600;
+      font-size: 15px;
+    }
+    .person-row-count {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+    .person-row-amount {
+      font-size: 17px;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Category stat grid */
+    .category-stat-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .cat-stat {
+      background: var(--surface);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-sm);
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .cat-stat-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--primary-soft);
+      color: #92400e;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+    .cat-stat-body { min-width: 0; flex: 1; }
+    .cat-stat-label {
+      font-size: 12px;
+      color: var(--text-muted);
+      text-transform: lowercase;
+      margin-bottom: 2px;
+    }
+    .cat-stat-value {
+      font-size: 15px;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      line-height: 1.1;
+    }
+    .cat-stat-currency {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-weight: 500;
+      margin-left: 2px;
+    }
+    .cat-stat.zero { opacity: 0.45; }
+
+    /* Date group header */
+    .date-group-header {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--text-muted);
+      margin: 14px 4px 6px;
+    }
+    .date-group-header:first-child { margin-top: 0; }
+    .date-group-header .total {
+      float: right;
+      color: var(--text);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .expense-list {
+      background: var(--surface);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+      margin-bottom: 8px;
+    }
+    .expense-row-wrap {
+      position: relative;
+      overflow: hidden;
+    }
+    .expense-row-wrap + .expense-row-wrap .expense-row {
+      border-top: 1px solid var(--border);
+    }
+    .expense-row-wrap::before {
+      content: "Sil";
+      position: absolute;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      width: 100%;
+      background: var(--danger);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding-right: 22px;
+      font-weight: 600;
+      font-size: 15px;
+    }
+    .expense-row {
+      background: var(--surface);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      min-height: 60px;
+      position: relative;
+      transition: transform 0s;
+      touch-action: pan-y;
+    }
+    .expense-row.swiping { transition: none; }
+    .expense-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      color: var(--text-muted);
+      flex-shrink: 0;
+    }
+    .expense-info {
+      flex: 1;
+      min-width: 0;
+    }
+    .expense-person {
+      font-weight: 600;
+      font-size: 15px;
+      line-height: 1.2;
+    }
+    .expense-meta {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+    .expense-amount {
+      font-size: 16px;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      flex-shrink: 0;
+    }
+    .expense-currency {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-weight: 500;
+      margin-left: 2px;
+    }
+    .expense-note {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 3px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-style: italic;
+    }
+    .expense-row.tap-active { background: var(--bg); }
+
+    /* Note row in entry screen */
+    .note-row {
+      padding: 0 16px 8px;
+      flex-shrink: 0;
+    }
+    .note-btn {
+      width: 100%;
+      min-height: 44px;
+      background: var(--surface);
+      border: 1.5px dashed var(--border-strong);
+      border-radius: var(--radius);
+      padding: 10px 14px;
+      font-size: 14px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: border-color 0.15s, color 0.15s;
+      text-align: left;
+    }
+    .note-btn:active { border-color: var(--primary); }
+    .note-btn.has-note {
+      border-style: solid;
+      color: var(--text);
+      font-style: italic;
+    }
+    .note-btn .note-text {
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .note-btn .note-icon { font-size: 16px; flex-shrink: 0; color: var(--text-faint); }
+
+    /* Edit modal — amount input */
+    .amount-input {
+      width: 100%;
+      background: var(--surface-alt);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      font-size: 28px;
+      font-weight: 700;
+      text-align: center;
+      font-variant-numeric: tabular-nums;
+      -webkit-user-select: text;
+      user-select: text;
+      min-height: 56px;
+      transition: border-color 0.15s;
+    }
+    .amount-input:focus { border-color: var(--primary); }
+    textarea.form-input {
+      resize: none;
+      min-height: 72px;
+      font-family: inherit;
+    }
+
+    /* ---------- Modal ---------- */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+      z-index: 100;
+      display: flex;
+      align-items: flex-end;
+      animation: fadeIn 0.2s;
+    }
+    .modal {
+      background: var(--surface);
+      width: 100%;
+      max-width: 480px;
+      margin: 0 auto;
+      border-radius: 22px 22px 0 0;
+      padding: 20px 20px calc(20px + var(--safe-bottom));
+      max-height: 90dvh;
+      overflow-y: auto;
+      animation: slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .modal-handle {
+      width: 36px;
+      height: 4px;
+      background: var(--border-strong);
+      border-radius: 2px;
+      margin: 0 auto 16px;
+    }
+    .modal h3 {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 18px;
+    }
+    .form-field {
+      margin-bottom: 16px;
+    }
+    .form-label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .form-input {
+      width: 100%;
+      background: var(--surface-alt);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 12px 14px;
+      font-size: 16px;
+      min-height: 48px;
+      transition: border-color 0.15s;
+      -webkit-user-select: text;
+      user-select: text;
+    }
+    .form-input:focus { border-color: var(--primary); }
+
+    .currency-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .currency-btn {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px;
+      min-height: 60px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      transition: all 0.15s;
+    }
+    .currency-btn .symbol {
+      font-size: 22px;
+      font-weight: 600;
+    }
+    .currency-btn .code {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    .currency-btn.selected {
+      background: var(--primary-soft);
+      border-color: var(--primary);
+    }
+    .currency-btn.selected .code { color: #92400e; }
+
+    .person-input-row {
+      display: flex;
+      gap: 8px;
+    }
+    .person-input-row .form-input { flex: 1; }
+    .person-input-row button {
+      min-width: 48px;
+      min-height: 48px;
+      border-radius: var(--radius);
+      background: var(--text);
+      color: white;
+      font-size: 22px;
+    }
+    .person-input-row button:disabled { opacity: 0.3; }
+
+    .people-edit-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 10px;
+    }
+    .person-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--bg);
+      border-radius: 100px;
+      padding: 6px 8px 6px 12px;
+      font-size: 14px;
+    }
+    .person-pill button {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--border-strong);
+      color: white;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      line-height: 1;
+    }
+
+    .menu-list {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      margin: 8px 0;
+    }
+    .menu-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 12px;
+      border-radius: var(--radius-sm);
+      font-size: 16px;
+      text-align: left;
+      width: 100%;
+      min-height: 48px;
+    }
+    .menu-item:active { background: var(--bg); }
+    .menu-item .icon { font-size: 20px; color: var(--text-muted); }
+    .menu-item.danger { color: var(--danger); }
+    .menu-item.danger .icon { color: var(--danger); }
+
+    .modal-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .modal-actions > * { flex: 1; }
+
+    /* ---------- Toast ---------- */
+    #toast-root {
+      position: fixed;
+      bottom: calc(var(--safe-bottom) + 80px);
+      left: 0;
+      right: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      pointer-events: none;
+      z-index: 200;
+      padding: 0 16px;
+    }
+    .toast {
+      background: var(--text);
+      color: white;
+      padding: 12px 16px;
+      border-radius: var(--radius);
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: var(--shadow);
+      pointer-events: auto;
+      animation: slideUpFade 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      max-width: 420px;
+      width: 100%;
+    }
+    .toast .msg { flex: 1; }
+    .toast button {
+      color: var(--primary);
+      font-weight: 600;
+      font-size: 14px;
+      padding: 4px 8px;
+    }
+    .toast.leaving {
+      animation: slideDownFade 0.2s ease-in forwards;
+    }
+
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+    @keyframes slideUpFade { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes slideDownFade { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(20px); } }
+  </style>
+</head>
+<body>
+  <svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true"><symbol id="i-dots" viewBox="0 0 24 24"><path d="M5 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" /> <path d="M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" /> <path d="M19 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" /></symbol><symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5l0 14" /> <path d="M5 12l14 0" /></symbol><symbol id="i-chart-bar" viewBox="0 0 24 24"><path d="M3 13a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v6a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z" /> <path d="M15 9a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v10a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z" /> <path d="M9 5a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v14a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z" /> <path d="M4 20h14" /></symbol><symbol id="i-calculator" viewBox="0 0 24 24"><path d="M4 3m0 2a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v14a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z" /> <path d="M8 7m0 1a1 1 0 0 1 1 -1h6a1 1 0 0 1 1 1v1a1 1 0 0 1 -1 1h-6a1 1 0 0 1 -1 -1z" /> <path d="M8 14l0 .01" /> <path d="M12 14l0 .01" /> <path d="M16 14l0 .01" /> <path d="M8 17l0 .01" /> <path d="M12 17l0 .01" /> <path d="M16 17l0 .01" /></symbol><symbol id="i-tools-kitchen-2" viewBox="0 0 24 24"><path d="M19 3v12h-5c-.023 -3.681 .184 -7.406 5 -12zm0 12v6h-1v-3m-10 -14v17m-3 -17v3a3 3 0 1 0 6 0v-3" /></symbol><symbol id="i-car" viewBox="0 0 24 24"><path d="M7 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /> <path d="M17 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /> <path d="M5 17h-2v-6l2 -5h9l4 5h1a2 2 0 0 1 2 2v4h-2m-4 0h-6m-6 -6h15m-6 0v-5" /></symbol><symbol id="i-glass" viewBox="0 0 24 24"><path d="M8 21h8" /> <path d="M12 16v5" /> <path d="M17 5l1 6c0 3.012 -2.686 5 -6 5s-6 -1.988 -6 -5l1 -6" /> <path d="M12 5m-5 0a5 2 0 1 0 10 0a5 2 0 1 0 -10 0" /></symbol><symbol id="i-luggage" viewBox="0 0 24 24"><path d="M6 6m0 2a2 2 0 0 1 2 -2h8a2 2 0 0 1 2 2v10a2 2 0 0 1 -2 2h-8a2 2 0 0 1 -2 -2z" /> <path d="M9 6v-1a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v1" /> <path d="M6 10h12" /> <path d="M6 16h12" /> <path d="M9 20v1" /> <path d="M15 20v1" /></symbol><symbol id="i-receipt" viewBox="0 0 24 24"><path d="M5 21v-16a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v16l-3 -2l-2 2l-2 -2l-2 2l-2 -2l-3 2m4 -14h6m-6 4h6m-2 4h2" /></symbol><symbol id="i-backspace" viewBox="0 0 24 24"><path d="M20 6a1 1 0 0 1 1 1v10a1 1 0 0 1 -1 1h-11l-5 -5a1.5 1.5 0 0 1 0 -2l5 -5z" /> <path d="M12 10l4 4m0 -4l-4 4" /></symbol><symbol id="i-chevron-right" viewBox="0 0 24 24"><path d="M9 6l6 6l-6 6" /></symbol><symbol id="i-arrows-up-down" viewBox="0 0 24 24"><path d="M7 3l0 18" /> <path d="M10 6l-3 -3l-3 3" /> <path d="M20 18l-3 3l-3 -3" /> <path d="M17 21l0 -18" /></symbol><symbol id="i-arrows-right-left" viewBox="0 0 24 24"><path d="M21 7l-18 0" /> <path d="M18 10l3 -3l-3 -3" /> <path d="M6 20l-3 -3l3 -3" /> <path d="M3 17l18 0" /></symbol><symbol id="i-settings" viewBox="0 0 24 24"><path d="M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065z" /> <path d="M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0" /></symbol><symbol id="i-download" viewBox="0 0 24 24"><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2" /> <path d="M7 11l5 5l5 -5" /> <path d="M12 4l0 12" /></symbol><symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7l16 0" /> <path d="M10 11l0 6" /> <path d="M14 11l0 6" /> <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" /> <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" /></symbol><symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12l5 5l10 -10" /></symbol><symbol id="i-note" viewBox="0 0 24 24"><path d="M5 3m0 2a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v14a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2z" /><path d="M9 7h6" /><path d="M9 11h6" /><path d="M9 15h4" /></symbol><symbol id="i-edit" viewBox="0 0 24 24"><path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" /><path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" /><path d="M16 5l3 3" /></symbol></svg>
+
+  <div id="app">
+    <header class="header" id="header">
+      <div class="header-title">
+        <h1 id="header-name">Tatil Masraf</h1>
+        <span class="currency" id="header-currency"></span>
+      </div>
+      <div class="header-actions">
+        <button class="icon-btn" id="calc-btn" aria-label="Kur çevirici" hidden>
+          <svg class="icon"><use href="#i-calculator"/></svg>
+        </button>
+        <button class="icon-btn" id="menu-btn" aria-label="Menü" hidden>
+          <svg class="icon"><use href="#i-dots"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <main class="main">
+      <section class="screen" id="screen-trip-list" data-screen="trip-list"></section>
+      <section class="screen" id="screen-expense-entry" data-screen="expense-entry"></section>
+      <section class="screen" id="screen-summary" data-screen="summary"></section>
+    </main>
+
+    <nav class="tab-bar" id="tab-bar" hidden>
+      <button class="tab-btn" data-tab="expense-entry">
+        <svg class="icon"><use href="#i-plus"/></svg>
+        <span>Ekle</span>
+      </button>
+      <button class="tab-btn" data-tab="summary">
+        <svg class="icon"><use href="#i-chart-bar"/></svg>
+        <span>Özet</span>
+      </button>
+    </nav>
+  </div>
+
+  <div id="modal-root"></div>
+  <div id="toast-root"></div>
+
+  <script>
+    // ============== PWA — inline manifest + service worker ==============
+    (function setupPWA() {
+      const manifest = {
+        name: 'Tatil Masraf',
+        short_name: 'Masraf',
+        display: 'standalone',
+        orientation: 'portrait',
+        background_color: '#ffffff',
+        theme_color: '#1a1a1a',
+        start_url: './',
+        icons: [{
+          src: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='112' fill='%23f59e0b'/><text x='256' y='340' font-size='280' text-anchor='middle' font-family='system-ui' fill='white' font-weight='700'>₿</text></svg>",
+          sizes: '512x512',
+          type: 'image/svg+xml',
+          purpose: 'any maskable'
+        }]
+      };
+      try {
+        const blob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('link');
+        link.rel = 'manifest';
+        link.href = url;
+        document.head.appendChild(link);
+      } catch {}
+
+      if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+        const swCode = `
+          const CACHE='tatil-v1';
+          self.addEventListener('install',e=>self.skipWaiting());
+          self.addEventListener('activate',e=>e.waitUntil(self.clients.claim()));
+          self.addEventListener('fetch',e=>{
+            if(e.request.method!=='GET') return;
+            e.respondWith(
+              caches.open(CACHE).then(c=>
+                c.match(e.request).then(r=>r||fetch(e.request).then(resp=>{
+                  if(resp.ok && resp.type==='basic') c.put(e.request,resp.clone());
+                  return resp;
+                }).catch(()=>c.match(e.request)))
+              )
+            );
+          });
+        `;
+        try {
+          const swBlob = new Blob([swCode], { type: 'application/javascript' });
+          const swUrl = URL.createObjectURL(swBlob);
+          navigator.serviceWorker.register(swUrl).catch(() => {});
+        } catch {}
+      }
+    })();
+
+    // ============== Constants ==============
+    const KEYS = {
+      trips: 'tatil_trips',
+      expenses: 'tatil_expenses',
+      active: 'tatil_active_trip',
+      rates: 'tatil_rates',
+    };
+    // Rate = "1 X = N TRY"
+    const DEFAULT_RATES = { NOK: 4.96 };
+    const CURRENCIES = [
+      { code: 'NOK', symbol: 'kr', name: 'Norveç Kronu' },
+      { code: 'EUR', symbol: '€',  name: 'Euro' },
+      { code: 'USD', symbol: '$',  name: 'Dolar' },
+      { code: 'TRY', symbol: '₺',  name: 'Türk Lirası' },
+    ];
+    const CATEGORIES = [
+      { key: 'food',          icon: 'tools-kitchen-2', label: 'yemek' },
+      { key: 'transport',     icon: 'car',             label: 'ulaşım' },
+      { key: 'entertainment', icon: 'glass',           label: 'eğlence' },
+      { key: 'other',         icon: 'dots',            label: 'diğer' },
+    ];
+    const SWIPE_THRESHOLD = 0.32;        // %32 of row width
+    const UNDO_DURATION = 3000;
+
+    // ============== State + Storage ==============
+    const state = {
+      trips: [],
+      expenses: [],
+      activeTripId: null,
+      currentScreen: 'trip-list',
+      draft: { person: null, category: 'food', amount: '', note: '' },
+      lastSelectedPerson: null,
+      rates: {},        // { [currencyCode]: numberOfTRYPerUnit }
+    };
+
+    function uid() {
+      if (crypto.randomUUID) return crypto.randomUUID();
+      return 'id-' + Math.random().toString(36).slice(2) + Date.now().toString(36);
+    }
+
+    function load() {
+      try {
+        state.trips = JSON.parse(localStorage.getItem(KEYS.trips) || '[]');
+        state.expenses = JSON.parse(localStorage.getItem(KEYS.expenses) || '[]');
+        state.activeTripId = localStorage.getItem(KEYS.active) || null;
+        state.rates = JSON.parse(localStorage.getItem(KEYS.rates) || '{}');
+      } catch {
+        state.trips = []; state.expenses = []; state.activeTripId = null; state.rates = {};
+      }
+      if (state.activeTripId && !state.trips.find(t => t.id === state.activeTripId)) {
+        state.activeTripId = null;
+      }
+      // Seed defaults for currencies that were never set
+      for (const [code, val] of Object.entries(DEFAULT_RATES)) {
+        if (!(code in state.rates)) state.rates[code] = val;
+      }
+    }
+    function persist() {
+      localStorage.setItem(KEYS.trips, JSON.stringify(state.trips));
+      localStorage.setItem(KEYS.expenses, JSON.stringify(state.expenses));
+      localStorage.setItem(KEYS.rates, JSON.stringify(state.rates));
+      if (state.activeTripId) localStorage.setItem(KEYS.active, state.activeTripId);
+      else localStorage.removeItem(KEYS.active);
+    }
+
+    // ============== Helpers ==============
+    function activeTrip() {
+      return state.trips.find(t => t.id === state.activeTripId) || null;
+    }
+    function currencySymbol(code) {
+      const c = CURRENCIES.find(x => x.code === code);
+      return c ? c.symbol : code;
+    }
+    function categoryMeta(key) {
+      return CATEGORIES.find(c => c.key === key) || CATEGORIES[3];
+    }
+    function rateFor(currency) {
+      if (currency === 'TRY') return 1;
+      const r = state.rates[currency];
+      return Number.isFinite(r) && r > 0 ? r : 0;
+    }
+    function convertToTRY(amount, currency) {
+      const r = rateFor(currency);
+      return r > 0 ? amount * r : null;
+    }
+    function computeEquivText(trip, amount) {
+      if (!trip || trip.currency === 'TRY') return { html: '', muted: false };
+      const r = rateFor(trip.currency);
+      if (r <= 0) {
+        return { html: `Kur ayarlı değil · <button type="button" id="equiv-set-link" style="background:none;border:none;color:var(--primary);font-weight:600;font-size:13px;padding:0;text-decoration:underline;cursor:pointer;">ayarla</button>`, muted: true };
+      }
+      if (!(amount > 0)) {
+        return { html: `1 ${trip.currency} = ${formatAmount(r)} ₺`, muted: true };
+      }
+      return { html: `≈ ${formatAmount(amount * r)} ₺`, muted: false };
+    }
+    function formatAmount(n) {
+      const fixed = (Math.round(n * 100) / 100);
+      if (Number.isInteger(fixed)) return fixed.toLocaleString('tr-TR');
+      return fixed.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+    function parseDraftAmount() {
+      const raw = state.draft.amount.replace(',', '.');
+      const n = parseFloat(raw);
+      return Number.isFinite(n) && n > 0 ? n : 0;
+    }
+    function formatTime(iso) {
+      const d = new Date(iso);
+      return d.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+    }
+    function dayKey(iso) {
+      const d = new Date(iso);
+      return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    }
+    function dayLabel(iso) {
+      const d = new Date(iso);
+      const today = new Date();
+      const yesterday = new Date(); yesterday.setDate(today.getDate() - 1);
+      if (dayKey(iso) === dayKey(today.toISOString())) return 'Bugün';
+      if (dayKey(iso) === dayKey(yesterday.toISOString())) return 'Dün';
+      return d.toLocaleDateString('tr-TR', { day: 'numeric', month: 'short', weekday: 'short' });
+    }
+    function escapeHTML(s) {
+      return String(s).replace(/[&<>"']/g, c => ({
+        '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+      }[c]));
+    }
+
+    // ============== Navigation / Render ==============
+    function setScreen(screen) {
+      state.currentScreen = screen;
+      document.querySelectorAll('.screen').forEach(el => {
+        el.classList.toggle('active', el.dataset.screen === screen);
+      });
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.tab === screen);
+      });
+      render();
+    }
+
+    function render() {
+      renderHeader();
+      const trip = activeTrip();
+      if (!trip) {
+        document.getElementById('tab-bar').hidden = true;
+        document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
+        document.getElementById('screen-trip-list').classList.add('active');
+        renderTripList();
+        return;
+      }
+      document.getElementById('tab-bar').hidden = false;
+      if (state.currentScreen === 'trip-list') renderTripList();
+      else if (state.currentScreen === 'expense-entry') renderExpenseEntry();
+      else if (state.currentScreen === 'summary') renderSummary();
+    }
+
+    function renderHeader() {
+      const trip = activeTrip();
+      const name = trip ? trip.name : 'Tatil Masraf';
+      const sym = trip ? currencySymbol(trip.currency) : '';
+      document.getElementById('header-name').textContent = name;
+      document.getElementById('header-currency').textContent = sym;
+      document.getElementById('menu-btn').hidden = !trip;
+      document.getElementById('calc-btn').hidden = !trip || trip.currency === 'TRY';
+    }
+
+    // ---------- TripList ----------
+    function renderTripList() {
+      const root = document.getElementById('screen-trip-list');
+      const hasTrips = state.trips.length > 0;
+      const trips = [...state.trips].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+
+      root.innerHTML = `
+        <div class="trip-list-screen">
+          <h2>Tatiller</h2>
+          <p class="subtitle">${hasTrips ? trips.length + ' tatil kayıtlı' : 'Henüz tatil yok'}</p>
+
+          ${hasTrips ? trips.map(t => {
+            const count = state.expenses.filter(e => e.tripId === t.id).length;
+            const sym = currencySymbol(t.currency);
+            const total = state.expenses
+              .filter(e => e.tripId === t.id)
+              .reduce((s, e) => s + e.amount, 0);
+            const isActive = t.id === state.activeTripId;
+            return `
+              <button class="trip-card ${isActive ? 'active-trip' : ''}" data-trip-id="${t.id}">
+                <div class="trip-card-info">
+                  <div class="trip-card-name">${escapeHTML(t.name)}</div>
+                  <div class="trip-card-meta">${count} kayıt · ${formatAmount(total)} ${sym}</div>
+                </div>
+                <svg class="icon trip-card-arrow"><use href="#i-chevron-right"/></svg>
+              </button>
+            `;
+          }).join('') : `
+            <div class="empty-state">
+              <svg class="icon"><use href="#i-luggage"/></svg>
+              <div class="empty-title">Hadi başlayalım</div>
+              <div class="empty-msg">İlk tatilini oluştur ve harcamaları takip etmeye başla.</div>
+            </div>
+          `}
+
+          <div class="fab-row">
+            <button class="btn-primary" id="new-trip-btn">
+              <i class="ti ti-plus" style="vertical-align:-3px;margin-right:6px;"></i>
+              Yeni tatil
+            </button>
+          </div>
+        </div>
+      `;
+
+      root.querySelector('#new-trip-btn').addEventListener('click', openNewTripModal);
+      root.querySelectorAll('.trip-card').forEach(card => {
+        card.addEventListener('click', () => {
+          state.activeTripId = card.dataset.tripId;
+          state.draft = { person: null, category: 'food', amount: '', note: '' };
+          state.lastSelectedPerson = null;
+          persist();
+          setScreen('expense-entry');
+        });
+      });
+    }
+
+    // ---------- ExpenseEntry ----------
+    function renderExpenseEntry() {
+      const trip = activeTrip();
+      if (!trip) return;
+      const root = document.getElementById('screen-expense-entry');
+      const draft = state.draft;
+      const sym = currencySymbol(trip.currency);
+
+      if (!draft.person && state.lastSelectedPerson && trip.people.includes(state.lastSelectedPerson)) {
+        draft.person = state.lastSelectedPerson;
+      }
+      if (!draft.person && trip.people.length === 1) {
+        draft.person = trip.people[0];
+      }
+
+      const amt = draft.amount;
+      const isEmpty = !amt;
+      const displayAmt = isEmpty ? '0' : amt.replace('.', ',');
+      const canSave = !!draft.person && parseDraftAmount() > 0;
+      const equivText = computeEquivText(trip, parseDraftAmount());
+
+      root.innerHTML = `
+        <div class="entry-screen">
+          <div class="entry-top">
+            <div class="section-label">Kim ödedi</div>
+            <div class="people-row" id="people-row">
+              ${trip.people.map(p => `
+                <button class="person-chip ${draft.person === p ? 'selected' : ''}" data-person="${escapeHTML(p)}">
+                  ${escapeHTML(p)}
+                </button>
+              `).join('')}
+              <button class="person-chip add-chip" id="add-person-chip" aria-label="Kişi ekle">
+                <svg class="icon"><use href="#i-plus"/></svg>
+              </button>
+            </div>
+
+            <div class="section-label">Kategori</div>
+            <div class="category-grid">
+              ${CATEGORIES.map(c => `
+                <button class="category-btn ${draft.category === c.key ? 'selected' : ''}" data-category="${c.key}">
+                  <i class="ti ${c.icon}"></i>
+                  <span>${c.label}</span>
+                </button>
+              `).join('')}
+            </div>
+          </div>
+
+          <div class="amount-display">
+            <div>
+              <span class="amount-value ${isEmpty ? 'empty' : ''}">${escapeHTML(displayAmt)}</span>
+              <span class="amount-currency">${sym}</span>
+            </div>
+            <div class="amount-equiv ${equivText.muted ? 'muted' : ''}" id="amount-equiv">${equivText.html}</div>
+          </div>
+
+          <div class="numpad" id="numpad">
+            ${['1','2','3','4','5','6','7','8','9',',','0','back']
+              .map(k => {
+                if (k === 'back') return `<button class="numpad-key" data-key="back" aria-label="Sil"><svg class="icon"><use href="#i-backspace"/></svg></button>`;
+                return `<button class="numpad-key" data-key="${k}">${k}</button>`;
+              }).join('')}
+          </div>
+
+          <div class="note-row">
+            <button class="note-btn ${draft.note ? 'has-note' : ''}" id="note-btn" type="button">
+              <svg class="icon note-icon"><use href="#i-note"/></svg>
+              <span class="note-text">${draft.note ? escapeHTML(draft.note) : 'Not ekle (opsiyonel)'}</span>
+            </button>
+          </div>
+
+          <div class="save-row">
+            <button class="save-btn" id="save-btn" ${canSave ? '' : 'disabled'}>
+              ${draft.person ? 'Kaydet' : 'Kişi seç'}
+            </button>
+          </div>
+        </div>
+      `;
+
+      root.querySelectorAll('.person-chip[data-person]').forEach(chip => {
+        chip.addEventListener('click', () => {
+          draft.person = chip.dataset.person;
+          state.lastSelectedPerson = draft.person;
+          renderExpenseEntry();
+        });
+      });
+      root.querySelector('#add-person-chip').addEventListener('click', openAddPersonPrompt);
+
+      root.querySelectorAll('.category-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          draft.category = btn.dataset.category;
+          renderExpenseEntry();
+        });
+      });
+
+      root.querySelectorAll('.numpad-key').forEach(btn => {
+        btn.addEventListener('click', () => handleNumpadKey(btn.dataset.key));
+      });
+
+      root.querySelector('#save-btn').addEventListener('click', saveExpense);
+      root.querySelector('#note-btn').addEventListener('click', openDraftNoteModal);
+
+      const setLink = root.querySelector('#equiv-set-link');
+      if (setLink) setLink.addEventListener('click', openConverter);
+    }
+
+    function openDraftNoteModal() {
+      openModal(`
+        <h3>Not ekle</h3>
+        <div class="form-field">
+          <label class="form-label">Not (opsiyonel)</label>
+          <textarea class="form-input" id="note-input" rows="3" placeholder="Örn: Bergen otel, Akşam yemeği..." autocomplete="off">${escapeHTML(state.draft.note || '')}</textarea>
+        </div>
+        <div class="modal-actions">
+          <button class="btn-secondary" data-close>Vazgeç</button>
+          <button class="btn-primary" id="save-note-btn">Tamam</button>
+        </div>
+      `, modal => {
+        const input = modal.querySelector('#note-input');
+        setTimeout(() => { input.focus(); input.setSelectionRange(input.value.length, input.value.length); }, 50);
+        const commit = () => {
+          state.draft.note = input.value.trim().slice(0, 200);
+          closeModal();
+          renderExpenseEntry();
+        };
+        modal.querySelector('#save-note-btn').addEventListener('click', commit);
+      });
+    }
+
+    function handleNumpadKey(key) {
+      const draft = state.draft;
+      let a = draft.amount;
+      if (key === 'back') {
+        a = a.slice(0, -1);
+      } else if (key === ',') {
+        if (!a) a = '0,';
+        else if (!a.includes(',') && !a.includes('.')) a += ',';
+      } else {
+        // digit
+        if (a === '0' || a === '') a = key;
+        else {
+          // limit decimals to 2
+          const sepIdx = a.indexOf(',');
+          if (sepIdx >= 0 && a.length - sepIdx > 2) return;
+          // limit total length to 10 chars
+          if (a.length >= 10) return;
+          a += key;
+        }
+      }
+      draft.amount = a;
+      // partial render: update amount + save button only
+      const trip = activeTrip();
+      if (!trip) return;
+      const sym = currencySymbol(trip.currency);
+      const isEmpty = !a;
+      const display = isEmpty ? '0' : a.replace('.', ',');
+      const amtEl = document.querySelector('.amount-value');
+      const symEl = document.querySelector('.amount-currency');
+      if (amtEl) {
+        amtEl.textContent = display;
+        amtEl.classList.toggle('empty', isEmpty);
+      }
+      if (symEl) symEl.textContent = sym;
+      const equivEl = document.getElementById('amount-equiv');
+      if (equivEl) {
+        const eq = computeEquivText(trip, parseDraftAmount());
+        equivEl.innerHTML = eq.html;
+        equivEl.classList.toggle('muted', eq.muted);
+        const link = equivEl.querySelector('#equiv-set-link');
+        if (link) link.addEventListener('click', openConverter);
+      }
+      const saveBtn = document.getElementById('save-btn');
+      if (saveBtn) {
+        const canSave = !!draft.person && parseDraftAmount() > 0;
+        saveBtn.disabled = !canSave;
+        saveBtn.textContent = draft.person ? 'Kaydet' : 'Kişi seç';
+      }
+    }
+
+    function saveExpense() {
+      const trip = activeTrip();
+      const draft = state.draft;
+      const amount = parseDraftAmount();
+      if (!trip || !draft.person || amount <= 0) return;
+
+      state.expenses.push({
+        id: uid(),
+        tripId: trip.id,
+        person: draft.person,
+        category: draft.category || 'food',
+        amount,
+        note: (draft.note || '').trim(),
+        createdAt: new Date().toISOString(),
+      });
+      persist();
+
+      const btn = document.getElementById('save-btn');
+      if (btn) {
+        btn.classList.add('flash');
+        btn.textContent = 'Kaydedildi ✓';
+        setTimeout(() => {
+          state.draft.amount = '';
+          state.draft.note = '';
+          renderExpenseEntry();
+        }, 500);
+      } else {
+        state.draft.amount = '';
+        state.draft.note = '';
+        renderExpenseEntry();
+      }
+    }
+
+    function openAddPersonPrompt() {
+      openModal(`
+        <h3>Kişi ekle</h3>
+        <div class="form-field">
+          <label class="form-label">İsim</label>
+          <input type="text" class="form-input" id="new-person-input" placeholder="Örn: Ayşe" autocomplete="off">
+        </div>
+        <div class="modal-actions">
+          <button class="btn-secondary" data-close>Vazgeç</button>
+          <button class="btn-primary" id="add-person-confirm">Ekle</button>
+        </div>
+      `, modal => {
+        const input = modal.querySelector('#new-person-input');
+        setTimeout(() => input.focus(), 50);
+        modal.querySelector('#add-person-confirm').addEventListener('click', () => {
+          const name = input.value.trim();
+          if (!name) { input.focus(); return; }
+          const trip = activeTrip();
+          if (!trip.people.includes(name)) {
+            trip.people.push(name);
+            persist();
+          }
+          state.draft.person = name;
+          state.lastSelectedPerson = name;
+          closeModal();
+          renderExpenseEntry();
+        });
+      });
+    }
+
+    // ---------- Summary ----------
+    function renderSummary() {
+      const trip = activeTrip();
+      if (!trip) return;
+      const root = document.getElementById('screen-summary');
+      const sym = currencySymbol(trip.currency);
+      const expenses = state.expenses.filter(e => e.tripId === trip.id);
+
+      const total = expenses.reduce((s, e) => s + e.amount, 0);
+      const perPerson = trip.people.length > 0 ? total / trip.people.length : 0;
+
+      const byPerson = trip.people.map(p => {
+        const list = expenses.filter(e => e.person === p);
+        return { name: p, count: list.length, total: list.reduce((s, e) => s + e.amount, 0) };
+      }).sort((a, b) => b.total - a.total);
+
+      const byCategory = CATEGORIES.map(c => {
+        const list = expenses.filter(e => e.category === c.key);
+        return { key: c.key, icon: c.icon, label: c.label, total: list.reduce((s, e) => s + e.amount, 0) };
+      });
+
+      const all = [...expenses].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+
+      // group by day
+      const groups = [];
+      const groupIdx = new Map();
+      for (const e of all) {
+        const k = dayKey(e.createdAt);
+        if (!groupIdx.has(k)) {
+          groupIdx.set(k, groups.length);
+          groups.push({ key: k, iso: e.createdAt, items: [], total: 0 });
+        }
+        const g = groups[groupIdx.get(k)];
+        g.items.push(e);
+        g.total += e.amount;
+      }
+
+      root.innerHTML = `
+        <div class="summary-screen">
+          <div class="stat-row">
+            <div class="stat-card">
+              <div class="stat-card-label">Toplam</div>
+              <div class="stat-card-value">${formatAmount(total)}<span class="stat-card-currency">${sym}</span></div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-card-label">Kişi başı</div>
+              <div class="stat-card-value">${formatAmount(perPerson)}<span class="stat-card-currency">${sym}</span></div>
+            </div>
+          </div>
+
+          ${total > 0 ? `
+            <div class="summary-section">
+              <div class="summary-section-title">Kategoriye göre</div>
+              <div class="category-stat-grid">
+                ${byCategory.map(c => `
+                  <div class="cat-stat ${c.total === 0 ? 'zero' : ''}">
+                    <div class="cat-stat-icon"><svg class="icon"><use href="#i-${c.icon}"/></svg></div>
+                    <div class="cat-stat-body">
+                      <div class="cat-stat-label">${c.label}</div>
+                      <div class="cat-stat-value">${formatAmount(c.total)}<span class="cat-stat-currency">${sym}</span></div>
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          ` : ''}
+
+          ${byPerson.length > 0 && total > 0 ? `
+            <div class="summary-section">
+              <div class="summary-section-title">Kişiye göre</div>
+              ${byPerson.map(p => `
+                <div class="person-row">
+                  <div>
+                    <div class="person-row-name">${escapeHTML(p.name)}</div>
+                    <div class="person-row-count">${p.count} harcama</div>
+                  </div>
+                  <div class="person-row-amount">${formatAmount(p.total)} <span class="expense-currency">${sym}</span></div>
+                </div>
+              `).join('')}
+            </div>
+          ` : ''}
+
+          <div class="summary-section">
+            <div class="summary-section-title">Tüm harcamalar${all.length > 0 ? ` (${all.length})` : ''}</div>
+            ${all.length === 0 ? `
+              <div class="empty-state" style="background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow-sm);">
+                <svg class="icon"><use href="#i-receipt"/></svg>
+                <div class="empty-title">Henüz harcama yok</div>
+                <div class="empty-msg">İlk girişini yapmak için "Ekle" sekmesine geç.</div>
+              </div>
+            ` : groups.map(g => `
+              <div class="date-group-header">
+                ${escapeHTML(dayLabel(g.iso))}
+                <span class="total">${formatAmount(g.total)} ${sym}</span>
+              </div>
+              <div class="expense-list">
+                ${g.items.map(e => {
+                  const cat = categoryMeta(e.category);
+                  return `
+                    <div class="expense-row-wrap" data-id="${e.id}">
+                      <div class="expense-row">
+                        <div class="expense-icon"><svg class="icon"><use href="#i-${cat.icon}"/></svg></div>
+                        <div class="expense-info">
+                          <div class="expense-person">${escapeHTML(e.person)}</div>
+                          <div class="expense-meta">${cat.label} · ${formatTime(e.createdAt)}</div>
+                          ${e.note ? `<div class="expense-note">${escapeHTML(e.note)}</div>` : ''}
+                        </div>
+                        <div class="expense-amount">${formatAmount(e.amount)}<span class="expense-currency">${sym}</span></div>
+                      </div>
+                    </div>
+                  `;
+                }).join('')}
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+
+      attachSwipeHandlers(root);
+    }
+
+    // ---------- Swipe-to-delete + tap-to-edit ----------
+    const TAP_THRESHOLD = 8; // px — under this is a tap, above is a swipe
+    function attachSwipeHandlers(root) {
+      root.querySelectorAll('.expense-row-wrap').forEach(wrap => {
+        const row = wrap.querySelector('.expense-row');
+        let startX = 0, startY = 0, currentX = 0, currentY = 0;
+        let width = 0, isActive = false, axis = null; // axis: null | 'x' | 'y'
+
+        const onStart = e => {
+          const pt = e.touches ? e.touches[0] : e;
+          startX = pt.clientX;
+          startY = pt.clientY;
+          currentX = startX;
+          currentY = startY;
+          width = wrap.getBoundingClientRect().width;
+          isActive = true;
+          axis = null;
+          row.classList.add('swiping');
+          row.classList.add('tap-active');
+        };
+        const onMove = e => {
+          if (!isActive) return;
+          const pt = e.touches ? e.touches[0] : e;
+          currentX = pt.clientX;
+          currentY = pt.clientY;
+          const dx = currentX - startX;
+          const dy = currentY - startY;
+          if (axis === null && (Math.abs(dx) > TAP_THRESHOLD || Math.abs(dy) > TAP_THRESHOLD)) {
+            axis = Math.abs(dx) > Math.abs(dy) ? 'x' : 'y';
+            row.classList.remove('tap-active');
+          }
+          if (axis === 'x') {
+            row.style.transform = `translateX(${Math.min(0, dx)}px)`;
+          } else if (axis === 'y') {
+            // vertical scroll — let it through, no transform
+            row.style.transform = '';
+          }
+        };
+        const onEnd = () => {
+          if (!isActive) return;
+          isActive = false;
+          row.classList.remove('swiping');
+          row.classList.remove('tap-active');
+          const dx = currentX - startX;
+          const dy = currentY - startY;
+          const moved = Math.max(Math.abs(dx), Math.abs(dy));
+
+          if (moved < TAP_THRESHOLD) {
+            // tap → edit
+            row.style.transform = '';
+            openEditExpenseModal(wrap.dataset.id);
+            return;
+          }
+
+          if (axis === 'x') {
+            const ratio = Math.abs(dx) / width;
+            if (dx < 0 && ratio > SWIPE_THRESHOLD) {
+              row.style.transition = 'transform 0.2s';
+              row.style.transform = `translateX(-${width}px)`;
+              setTimeout(() => deleteExpenseWithUndo(wrap.dataset.id), 180);
+              return;
+            }
+          }
+          // snap back
+          row.style.transition = 'transform 0.2s';
+          row.style.transform = 'translateX(0)';
+          setTimeout(() => { row.style.transition = ''; }, 200);
+        };
+
+        row.addEventListener('touchstart', onStart, { passive: true });
+        row.addEventListener('touchmove', onMove, { passive: true });
+        row.addEventListener('touchend', onEnd);
+        row.addEventListener('touchcancel', onEnd);
+        // mouse for desktop testing
+        row.addEventListener('mousedown', onStart);
+        row.addEventListener('mousemove', e => { if (isActive) onMove(e); });
+        row.addEventListener('mouseup', onEnd);
+        row.addEventListener('mouseleave', onEnd);
+      });
+    }
+
+    function openEditExpenseModal(id) {
+      const expense = state.expenses.find(e => e.id === id);
+      const trip = activeTrip();
+      if (!expense || !trip) return;
+
+      let person = expense.person;
+      let category = expense.category;
+      let amountStr = String(expense.amount).replace('.', ',');
+      let note = expense.note || '';
+      const sym = currencySymbol(trip.currency);
+
+      openModal(`
+        <h3>Harcamayı düzenle</h3>
+        <div class="form-field">
+          <label class="form-label">Kim ödedi</label>
+          <div class="people-row" id="edit-people-row" style="padding:0; margin:0;">
+            ${trip.people.map(p => `
+              <button type="button" class="person-chip ${person === p ? 'selected' : ''}" data-person="${escapeHTML(p)}">
+                ${escapeHTML(p)}
+              </button>
+            `).join('')}
+          </div>
+        </div>
+        <div class="form-field">
+          <label class="form-label">Kategori</label>
+          <div class="category-grid" id="edit-category-grid" style="margin-bottom:0;">
+            ${CATEGORIES.map(c => `
+              <button type="button" class="category-btn ${category === c.key ? 'selected' : ''}" data-category="${c.key}">
+                <svg class="icon"><use href="#i-${c.icon}"/></svg>
+                <span>${c.label}</span>
+              </button>
+            `).join('')}
+          </div>
+        </div>
+        <div class="form-field">
+          <label class="form-label">Tutar (${sym})</label>
+          <input type="text" inputmode="decimal" class="amount-input" id="edit-amount-input" value="${escapeHTML(amountStr)}" autocomplete="off">
+        </div>
+        <div class="form-field">
+          <label class="form-label">Not</label>
+          <textarea class="form-input" id="edit-note-input" rows="2" placeholder="Opsiyonel" autocomplete="off">${escapeHTML(note)}</textarea>
+        </div>
+        <div class="modal-actions">
+          <button class="btn-secondary" data-close>Vazgeç</button>
+          <button class="btn-primary" id="edit-save-btn">Kaydet</button>
+        </div>
+        <button class="menu-item danger" id="edit-delete-btn" style="margin-top:10px;justify-content:center;">
+          <svg class="icon"><use href="#i-trash"/></svg> Bu harcamayı sil
+        </button>
+      `, modal => {
+        modal.querySelectorAll('#edit-people-row .person-chip').forEach(chip => {
+          chip.addEventListener('click', () => {
+            person = chip.dataset.person;
+            modal.querySelectorAll('#edit-people-row .person-chip').forEach(c => {
+              c.classList.toggle('selected', c.dataset.person === person);
+            });
+          });
+        });
+        modal.querySelectorAll('#edit-category-grid .category-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            category = btn.dataset.category;
+            modal.querySelectorAll('#edit-category-grid .category-btn').forEach(b => {
+              b.classList.toggle('selected', b.dataset.category === category);
+            });
+          });
+        });
+
+        const amountInput = modal.querySelector('#edit-amount-input');
+        amountInput.addEventListener('input', () => {
+          // sanitize: allow digits + one comma/dot
+          let v = amountInput.value.replace(/[^\d,.]/g, '').replace('.', ',');
+          const firstComma = v.indexOf(',');
+          if (firstComma >= 0) {
+            v = v.slice(0, firstComma + 1) + v.slice(firstComma + 1).replace(/,/g, '');
+            const dec = v.slice(firstComma + 1);
+            if (dec.length > 2) v = v.slice(0, firstComma + 3);
+          }
+          amountStr = v;
+          amountInput.value = v;
+        });
+
+        modal.querySelector('#edit-save-btn').addEventListener('click', () => {
+          const raw = amountStr.replace(',', '.');
+          const n = parseFloat(raw);
+          if (!Number.isFinite(n) || n <= 0) {
+            amountInput.focus();
+            showToast('Geçerli bir tutar gir');
+            return;
+          }
+          if (!person) {
+            showToast('Kişi seç');
+            return;
+          }
+          const noteVal = modal.querySelector('#edit-note-input').value.trim().slice(0, 200);
+          expense.person = person;
+          expense.category = category;
+          expense.amount = n;
+          expense.note = noteVal;
+          persist();
+          closeModal();
+          if (state.currentScreen === 'summary') renderSummary();
+          showToast('Güncellendi');
+        });
+
+        modal.querySelector('#edit-delete-btn').addEventListener('click', () => {
+          closeModal();
+          deleteExpenseWithUndo(id);
+        });
+
+        setTimeout(() => { amountInput.focus(); amountInput.select(); }, 50);
+      });
+    }
+
+    function deleteExpenseWithUndo(id) {
+      const idx = state.expenses.findIndex(e => e.id === id);
+      if (idx < 0) return;
+      const [removed] = state.expenses.splice(idx, 1);
+      persist();
+      renderSummary();
+
+      showToast('Harcama silindi', {
+        action: { label: 'Geri al', onClick: () => {
+          state.expenses.splice(idx, 0, removed);
+          persist();
+          renderSummary();
+        }},
+        duration: UNDO_DURATION,
+      });
+    }
+
+    // ============== Modals ==============
+    function openModal(html, onMount) {
+      closeModal();
+      const root = document.getElementById('modal-root');
+      const backdrop = document.createElement('div');
+      backdrop.className = 'modal-backdrop';
+      backdrop.innerHTML = `
+        <div class="modal" role="dialog" aria-modal="true">
+          <div class="modal-handle"></div>
+          ${html}
+        </div>
+      `;
+      backdrop.addEventListener('click', e => {
+        if (e.target === backdrop) closeModal();
+      });
+      backdrop.querySelectorAll('[data-close]').forEach(b => {
+        b.addEventListener('click', closeModal);
+      });
+      root.appendChild(backdrop);
+      if (onMount) onMount(backdrop.querySelector('.modal'));
+    }
+    function closeModal() {
+      const root = document.getElementById('modal-root');
+      root.innerHTML = '';
+    }
+
+    function openNewTripModal() {
+      let selectedCurrency = 'NOK';
+      let people = [];
+
+      openModal(`
+        <h3>Yeni tatil</h3>
+        <div class="form-field">
+          <label class="form-label">Tatil adı</label>
+          <input type="text" class="form-input" id="trip-name-input" placeholder="Örn: Norveç 2025" autocomplete="off">
+        </div>
+        <div class="form-field">
+          <label class="form-label">Para birimi</label>
+          <div class="currency-grid" id="currency-grid">
+            ${CURRENCIES.map(c => `
+              <button class="currency-btn ${c.code === selectedCurrency ? 'selected' : ''}" data-currency="${c.code}">
+                <span class="symbol">${c.symbol}</span>
+                <span class="code">${c.code}</span>
+              </button>
+            `).join('')}
+          </div>
+        </div>
+        <div class="form-field">
+          <label class="form-label">Kişiler</label>
+          <div class="person-input-row">
+            <input type="text" class="form-input" id="person-input" placeholder="İsim" autocomplete="off">
+            <button id="add-person-btn" aria-label="Ekle">+</button>
+          </div>
+          <div class="people-edit-list" id="people-edit-list"></div>
+        </div>
+        <div class="modal-actions">
+          <button class="btn-secondary" data-close>Vazgeç</button>
+          <button class="btn-primary" id="create-trip-btn">Oluştur</button>
+        </div>
+      `, modal => {
+        const nameInput = modal.querySelector('#trip-name-input');
+        const personInput = modal.querySelector('#person-input');
+        const grid = modal.querySelector('#currency-grid');
+        const list = modal.querySelector('#people-edit-list');
+
+        function renderPeople() {
+          list.innerHTML = people.map((p, i) => `
+            <span class="person-pill">
+              ${escapeHTML(p)}
+              <button data-i="${i}" aria-label="Sil">×</button>
+            </span>
+          `).join('');
+          list.querySelectorAll('button').forEach(b => b.addEventListener('click', () => {
+            people.splice(parseInt(b.dataset.i, 10), 1);
+            renderPeople();
+          }));
+        }
+
+        grid.addEventListener('click', e => {
+          const btn = e.target.closest('[data-currency]');
+          if (!btn) return;
+          selectedCurrency = btn.dataset.currency;
+          grid.querySelectorAll('.currency-btn').forEach(b => {
+            b.classList.toggle('selected', b.dataset.currency === selectedCurrency);
+          });
+        });
+
+        function addPerson() {
+          const v = personInput.value.trim();
+          if (!v || people.includes(v)) { personInput.focus(); return; }
+          people.push(v);
+          personInput.value = '';
+          personInput.focus();
+          renderPeople();
+        }
+        modal.querySelector('#add-person-btn').addEventListener('click', addPerson);
+        personInput.addEventListener('keydown', e => {
+          if (e.key === 'Enter') { e.preventDefault(); addPerson(); }
+        });
+
+        modal.querySelector('#create-trip-btn').addEventListener('click', () => {
+          const name = nameInput.value.trim();
+          if (!name) { nameInput.focus(); showToast('Tatil adı gerekli'); return; }
+          if (people.length === 0) {
+            const v = personInput.value.trim();
+            if (v) people.push(v);
+          }
+          if (people.length === 0) { personInput.focus(); showToast('En az bir kişi gerekli'); return; }
+
+          const trip = {
+            id: uid(),
+            name,
+            currency: selectedCurrency,
+            createdAt: new Date().toISOString(),
+            people,
+          };
+          state.trips.push(trip);
+          state.activeTripId = trip.id;
+          state.draft = { person: people[0], category: 'food', amount: '', note: '' };
+          state.lastSelectedPerson = people[0];
+          persist();
+          closeModal();
+          setScreen('expense-entry');
+        });
+
+        setTimeout(() => nameInput.focus(), 50);
+      });
+    }
+
+    function openTripMenu() {
+      const trip = activeTrip();
+      if (!trip) return;
+      openModal(`
+        <h3>Seçenekler</h3>
+        <div class="menu-list">
+          <button class="menu-item" data-act="switch">
+            <svg class="icon"><use href="#i-arrows-right-left"/></svg> Tatil değiştir
+          </button>
+          <button class="menu-item" data-act="edit">
+            <svg class="icon"><use href="#i-settings"/></svg> Tatil ayarları
+          </button>
+          <button class="menu-item" data-act="csv">
+            <i class="ti ti-download"></i> CSV olarak indir
+          </button>
+          <button class="menu-item danger" data-act="delete">
+            <i class="ti ti-trash"></i> Tatili sil
+          </button>
+        </div>
+      `, modal => {
+        modal.querySelectorAll('[data-act]').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const act = btn.dataset.act;
+            closeModal();
+            if (act === 'switch') {
+              state.activeTripId = null;
+              persist();
+              setScreen('trip-list');
+            } else if (act === 'edit') {
+              openTripEditModal();
+            } else if (act === 'csv') {
+              exportCSV(trip);
+            } else if (act === 'delete') {
+              confirmDeleteTrip(trip);
+            }
+          });
+        });
+      });
+    }
+
+    function openTripEditModal() {
+      const trip = activeTrip();
+      if (!trip) return;
+      let selectedCurrency = trip.currency;
+      let people = [...trip.people];
+
+      openModal(`
+        <h3>Tatil ayarları</h3>
+        <div class="form-field">
+          <label class="form-label">Tatil adı</label>
+          <input type="text" class="form-input" id="trip-name-input" value="${escapeHTML(trip.name)}" autocomplete="off">
+        </div>
+        <div class="form-field">
+          <label class="form-label">Para birimi</label>
+          <div class="currency-grid" id="currency-grid">
+            ${CURRENCIES.map(c => `
+              <button class="currency-btn ${c.code === selectedCurrency ? 'selected' : ''}" data-currency="${c.code}">
+                <span class="symbol">${c.symbol}</span>
+                <span class="code">${c.code}</span>
+              </button>
+            `).join('')}
+          </div>
+        </div>
+        <div class="form-field">
+          <label class="form-label">Kişiler</label>
+          <div class="person-input-row">
+            <input type="text" class="form-input" id="person-input" placeholder="Yeni isim" autocomplete="off">
+            <button id="add-person-btn" aria-label="Ekle">+</button>
+          </div>
+          <div class="people-edit-list" id="people-edit-list"></div>
+        </div>
+        <div class="modal-actions">
+          <button class="btn-secondary" data-close>Vazgeç</button>
+          <button class="btn-primary" id="save-trip-btn">Kaydet</button>
+        </div>
+      `, modal => {
+        const nameInput = modal.querySelector('#trip-name-input');
+        const personInput = modal.querySelector('#person-input');
+        const grid = modal.querySelector('#currency-grid');
+        const list = modal.querySelector('#people-edit-list');
+
+        function renderPeople() {
+          list.innerHTML = people.map((p, i) => `
+            <span class="person-pill">
+              ${escapeHTML(p)}
+              <button data-i="${i}" aria-label="Sil">×</button>
+            </span>
+          `).join('');
+          list.querySelectorAll('button').forEach(b => b.addEventListener('click', () => {
+            people.splice(parseInt(b.dataset.i, 10), 1);
+            renderPeople();
+          }));
+        }
+        renderPeople();
+
+        grid.addEventListener('click', e => {
+          const btn = e.target.closest('[data-currency]');
+          if (!btn) return;
+          selectedCurrency = btn.dataset.currency;
+          grid.querySelectorAll('.currency-btn').forEach(b => {
+            b.classList.toggle('selected', b.dataset.currency === selectedCurrency);
+          });
+        });
+
+        function addPerson() {
+          const v = personInput.value.trim();
+          if (!v || people.includes(v)) { personInput.focus(); return; }
+          people.push(v);
+          personInput.value = '';
+          personInput.focus();
+          renderPeople();
+        }
+        modal.querySelector('#add-person-btn').addEventListener('click', addPerson);
+        personInput.addEventListener('keydown', e => {
+          if (e.key === 'Enter') { e.preventDefault(); addPerson(); }
+        });
+
+        modal.querySelector('#save-trip-btn').addEventListener('click', () => {
+          const name = nameInput.value.trim();
+          if (!name) { nameInput.focus(); showToast('Tatil adı gerekli'); return; }
+          if (people.length === 0) { showToast('En az bir kişi gerekli'); return; }
+
+          trip.name = name;
+          trip.currency = selectedCurrency;
+          trip.people = people;
+          if (state.draft.person && !people.includes(state.draft.person)) {
+            state.draft.person = null;
+          }
+          if (state.lastSelectedPerson && !people.includes(state.lastSelectedPerson)) {
+            state.lastSelectedPerson = null;
+          }
+          persist();
+          closeModal();
+          render();
+        });
+      });
+    }
+
+    function confirmDeleteTrip(trip) {
+      openModal(`
+        <h3>Tatili sil</h3>
+        <p style="color:var(--text-muted); margin-bottom:18px; font-size:15px;">
+          "<strong>${escapeHTML(trip.name)}</strong>" ve içindeki tüm harcamalar silinecek. Bu işlem geri alınamaz.
+        </p>
+        <div class="modal-actions">
+          <button class="btn-secondary" data-close>Vazgeç</button>
+          <button class="btn-primary" id="confirm-delete-btn" style="background:var(--danger);">Sil</button>
+        </div>
+      `, modal => {
+        modal.querySelector('#confirm-delete-btn').addEventListener('click', () => {
+          state.trips = state.trips.filter(t => t.id !== trip.id);
+          state.expenses = state.expenses.filter(e => e.tripId !== trip.id);
+          state.activeTripId = null;
+          state.draft = { person: null, category: 'food', amount: '', note: '' };
+          state.lastSelectedPerson = null;
+          persist();
+          closeModal();
+          setScreen('trip-list');
+        });
+      });
+    }
+
+    // ============== Currency Converter ==============
+    function openConverter() {
+      const trip = activeTrip();
+      if (!trip || trip.currency === 'TRY') return;
+      const code = trip.currency;
+      const sym = currencySymbol(code);
+
+      let rate = rateFor(code);
+      let editingRate = rate <= 0;   // if no rate, jump straight to edit mode
+
+      const initialFrom = parseDraftAmount();
+
+      openModal(`
+        <h3>Kur çevirici</h3>
+        <div class="converter-field">
+          <span class="conv-label">${sym}</span>
+          <input type="text" inputmode="decimal" id="conv-from" placeholder="0" autocomplete="off">
+        </div>
+        <div class="converter-arrow"><svg class="icon"><use href="#i-arrows-up-down"/></svg></div>
+        <div class="converter-field">
+          <span class="conv-label">₺</span>
+          <input type="text" inputmode="decimal" id="conv-to" placeholder="0" autocomplete="off">
+        </div>
+        <div id="rate-row"></div>
+        <div class="modal-actions" style="margin-top:14px;">
+          <button class="btn-secondary" data-close>Kapat</button>
+        </div>
+      `, modal => {
+        const fromInput = modal.querySelector('#conv-from');
+        const toInput = modal.querySelector('#conv-to');
+        const rateRow = modal.querySelector('#rate-row');
+
+        function fmt(n) {
+          return formatAmount(n).replace('.', ',');
+        }
+        function parse(v) {
+          const n = parseFloat(String(v).replace(',', '.').replace(/\s/g, ''));
+          return Number.isFinite(n) ? n : null;
+        }
+        function syncFromSource(src) {
+          const r = rate;
+          if (src === 'from') {
+            const n = parse(fromInput.value);
+            toInput.value = (n !== null && r > 0) ? fmt(n * r) : '';
+          } else {
+            const n = parse(toInput.value);
+            fromInput.value = (n !== null && r > 0) ? fmt(n / r) : '';
+          }
+        }
+
+        function renderRateRow() {
+          if (editingRate) {
+            rateRow.innerHTML = `
+              <div class="converter-rate" style="background:transparent;padding:14px 0;">
+                <div class="rate-edit-row">
+                  <span class="rate-prefix">1 ${code} =</span>
+                  <input type="text" inputmode="decimal" id="rate-input" placeholder="0,00" value="${rate > 0 ? fmt(rate) : ''}" autocomplete="off">
+                  <span class="rate-prefix">₺</span>
+                  <button id="rate-save-btn" aria-label="Kaydet"><i class="ti ti-check"></i></button>
+                </div>
+              </div>
+            `;
+            const input = rateRow.querySelector('#rate-input');
+            const save = rateRow.querySelector('#rate-save-btn');
+            const commit = () => {
+              const n = parse(input.value);
+              if (n === null || n <= 0) { input.focus(); showToast('Geçerli bir kur gir'); return; }
+              rate = n;
+              state.rates[code] = n;
+              persist();
+              editingRate = false;
+              renderRateRow();
+              syncFromSource('from');
+              // refresh entry screen equiv too
+              if (state.currentScreen === 'expense-entry') renderExpenseEntry();
+            };
+            save.addEventListener('click', commit);
+            input.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); commit(); } });
+            setTimeout(() => { input.focus(); input.select(); }, 50);
+          } else {
+            rateRow.innerHTML = `
+              <button class="converter-rate" id="rate-edit-btn" type="button">
+                <span class="rate-text">1 ${code} = ${fmt(rate)} ₺</span>
+                <span class="rate-edit">Düzenle</span>
+              </button>
+            `;
+            rateRow.querySelector('#rate-edit-btn').addEventListener('click', () => {
+              editingRate = true;
+              renderRateRow();
+            });
+          }
+        }
+        renderRateRow();
+
+        fromInput.addEventListener('input', () => syncFromSource('from'));
+        toInput.addEventListener('input', () => syncFromSource('to'));
+
+        // Prefill: if user has a draft amount, seed it
+        if (initialFrom > 0) {
+          fromInput.value = fmt(initialFrom);
+          syncFromSource('from');
+        }
+        // Focus from input unless editing rate (which has its own focus)
+        if (!editingRate) setTimeout(() => fromInput.focus(), 50);
+      });
+    }
+
+    // ============== CSV Export ==============
+    function exportCSV(trip) {
+      const rows = state.expenses
+        .filter(e => e.tripId === trip.id)
+        .sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+
+      const header = ['tarih', 'saat', 'kişi', 'kategori', 'tutar', 'para_birimi'];
+      const csvRows = [header.join(',')];
+
+      for (const e of rows) {
+        const d = new Date(e.createdAt);
+        const date = d.toISOString().slice(0, 10);
+        const time = d.toTimeString().slice(0, 5);
+        const cat = categoryMeta(e.category).label;
+        csvRows.push([
+          date,
+          time,
+          csvEscape(e.person),
+          csvEscape(cat),
+          e.amount,
+          trip.currency,
+        ].join(','));
+      }
+
+      const csv = '﻿' + csvRows.join('\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      const safeName = trip.name.replace(/[^\p{L}\p{N}_-]+/gu, '_');
+      a.href = url;
+      a.download = `${safeName}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      showToast(`${rows.length} kayıt indirildi`);
+    }
+    function csvEscape(v) {
+      const s = String(v);
+      if (/[",\n]/.test(s)) return '"' + s.replace(/"/g, '""') + '"';
+      return s;
+    }
+
+    // ============== Toast ==============
+    let toastTimer = null;
+    function showToast(message, { action, duration = 2000 } = {}) {
+      const root = document.getElementById('toast-root');
+      root.innerHTML = '';
+      clearTimeout(toastTimer);
+
+      const el = document.createElement('div');
+      el.className = 'toast';
+      el.innerHTML = `<span class="msg">${escapeHTML(message)}</span>`;
+
+      if (action) {
+        const btn = document.createElement('button');
+        btn.textContent = action.label;
+        btn.addEventListener('click', () => {
+          dismissToast(el);
+          action.onClick();
+        });
+        el.appendChild(btn);
+      }
+
+      root.appendChild(el);
+      toastTimer = setTimeout(() => dismissToast(el), duration);
+    }
+    function dismissToast(el) {
+      if (!el || !el.parentNode) return;
+      el.classList.add('leaving');
+      setTimeout(() => { if (el.parentNode) el.parentNode.removeChild(el); }, 200);
+    }
+
+    // ============== Boot ==============
+    document.getElementById('menu-btn').addEventListener('click', openTripMenu);
+    document.getElementById('calc-btn').addEventListener('click', openConverter);
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => setScreen(btn.dataset.tab));
+    });
+
+    load();
+    if (state.activeTripId) {
+      setScreen('expense-entry');
+    } else {
+      setScreen('trip-list');
+    }
+  </script>
+</body>
+</html>
