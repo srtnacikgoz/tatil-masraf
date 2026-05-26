@@ -333,7 +333,7 @@
 
     .category-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: repeat(4, 1fr);
       gap: 8px;
       margin-bottom: 16px;
     }
@@ -341,17 +341,14 @@
       background: var(--surface);
       border: 1.5px solid var(--border);
       border-radius: var(--radius);
-      min-height: 64px;
+      min-height: 52px;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 8px;
-      font-size: 15px;
-      font-weight: 500;
       color: var(--text);
       transition: all 0.15s;
     }
-    .category-btn .icon { font-size: 22px; }
+    .category-btn .icon { font-size: 26px; }
     .category-btn:active { transform: scale(0.97); }
     .category-btn.selected {
       background: var(--primary-soft);
@@ -1376,9 +1373,8 @@
             <div class="section-label">Kategori</div>
             <div class="category-grid">
               ${CATEGORIES.map(c => `
-                <button class="category-btn ${draft.category === c.key ? 'selected' : ''}" data-category="${c.key}">
+                <button class="category-btn ${draft.category === c.key ? 'selected' : ''}" data-category="${c.key}" aria-label="${c.label}">
                   <svg class="icon"><use href="#i-${c.icon}"/></svg>
-                  <span>${c.label}</span>
                 </button>
               `).join('')}
             </div>
